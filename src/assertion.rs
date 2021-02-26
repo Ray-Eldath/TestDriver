@@ -17,14 +17,8 @@ impl ToTokens for AssertPath {
     fn to_tokens(&self, tokens: &mut TokenStream) {
         match self {
             AssertPath::Whole => {}
-            AssertPath::Field(f) => {
-                tokens.append(Punct::new('.', Spacing::Alone));
-                f.to_tokens(tokens)
-            }
-            AssertPath::Call(c) => {
-                tokens.append(Punct::new('.', Spacing::Alone));
-                c.to_tokens(tokens)
-            }
+            AssertPath::Field(f) => f.to_tokens(tokens),
+            AssertPath::Call(c) => c.to_tokens(tokens)
         }
     }
 }
@@ -42,9 +36,15 @@ impl Assert for AssertEQ {
     fn construct_assertion(&self, constructed: Ident) -> TokenStream {
         let path = &self.path;
         let expected = &self.expected;
+        let mut constructed = constructed.to_token_stream();
+
+        match path {
+            AssertPath::Whole => {}
+            _ => constructed.append(Punct::new('.', Spacing::Alone)),
+        }
 
         quote! {
-            assert_eq!(#constructed#path, #expected, "testing eq [<subject>{}, {}]", stringify!(#path), #expected);
+            assert_eq!(#constructed#path, #expected, "testing eq [{}, {}]", stringify!(#path), #expected);
         }
     }
 }

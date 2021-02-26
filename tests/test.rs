@@ -25,7 +25,7 @@ fn test() {
     drive!(String with "abc",
             assert {
                 ne [len(), 2],
-                eq [len(), 3],
+                eq [len(), 4],
                 eq [self, "abc"]
             });
 }
